@@ -1,0 +1,103 @@
+This is a short introduction to how to use the SIG-Game Chess Framework
+
+== Writing your AI ==
+The primary (IE only) file you need to edit is the AI file (AI.java, AI.py, etc).  In here you will find a few functions, 
+described in order of importance below.  For full API documentation, you can run "doxygen" in any of the language 
+folders to build that language's documentation.  This will create an "html" folder, which contains the index.html file.
+Open with your favorite web browser and enjoy.
+
+The "run" function is called whenever it is your turn.  In this function you will need to do things like:
+1) Feed the state information into your move generator
+2) Decide what move to make
+3) Make that move
+We provide some example code in this function you can feel free to remove which accesses the game objects.  We provide
+all state information as collections of each type, and those collections are inherited from the BaseAI class.  
+These collections include:
+* The Piece class - a game object for each living piece, which stores its location and provides a move function.
+* The Move class - the list of all moves that have been made, in order of most recent first (IE last turns move is at index 0).
+* The Player class - information about the players in the game, such as their time remaining, their names, etc.
+When you decide what move to make, you call the move function of the Piece object you want to move, and pass it the rank 
+and file to move to.  The type argument is only used when promoting to control what type to promote to.
+
+The "init" function is called just before your first turn.  This is a great place to seed RNGs.
+
+The "end" function is the opposite of "init", and is only called after the end of your last turn.  A good place to clean
+up any remaining dynamic memory you have allocated.
+
+The "username" and "password" functions allow you to name your client so people know who is playing.  The username and 
+password here should match your team name and team password on the server.  DO NOT PUT AN IMPORTANT PASSWORD HERE.  
+Its plain text and very unsecured.
+
+== Building a client ==
+We provide a makefile for all of the languages that have been tested on the rc##xcs213.managed.mst.edu machines, as well 
+as a few other Linux distributions.
+
+If you use our build system, all languages (even python), need to run "make" to compile.  This sets up some shared 
+objects from C++ that all languages need, as well as doing any language specific compilation.  Once make is successful, 
+you can move on to starting a game.
+
+If you plan to use an alternative build system, you'll need to incorporate the construction of the shared object library, 
+who's source files exist in the c/ folder.
+
+<<<C#>>> Since C# is a Microsoft based language, we do provide Visual Studio 2008 and 2010 project files.  To use,
+copy the contents of the CS/CSMagic/VS20## CSMagic/ folder up to the CS/ folder.
+
+== Starting a game ==
+First you need a chess server running.  This requires python2.7 with the twisted package installed, which is available 
+on the rc##xcs213.managed.mst.edu machines.
+
+From the server/ folder, you will need to run
+python2.7 main.py
+
+This will start a server that can handle any number of games.  If you get an exception like:
+twisted.internet.error.CannotListenError: Couldn't listen on any:19000: [Errno 98] Address already in use.
+
+then someone already has a SIG-Game server running on that computer.  You can use theirs, or try another machine.
+
+Once your server is started, you will need to connect clients to the game.  If you are using Linux, the following command 
+will connect the "White" player
+./run <hostname>
+
+where hostname is the location of the server.  IE: ./run rc02xcs213.managed.mst.edu or ./run localhost
+If you are not using Linux, you need to pass your client the command line argument for the host. 
+This command will give you a "Game Number" for the game you just created.
+
+To connect the "Black" player, do the following:
+./run <hostname> <gameNumber>
+
+where hostname is the location of the server and gameNumber is the game you want to join.  
+IE: ./run rc02xcs213.managed.mst.edu 3
+At this point, the game should start.  If you get any bonkers exceptions and you didn't start the server, you may have 
+connected to something that isn't a chess server.
+
+For those not using Linux to handle their clients, pass the executable you built the same arguments as "run", and 
+everything should work similarly.
+
+== The Visualizer ==
+
+Getting the latest visualizer.
+
+Windows: ftp://r99acm.device.mst.edu:2121/chess-windows.zip
+Linux: ftp://r99acm.device.mst.edu:2121/chess-linux.zip
+
+=== Building The Chess Visualizer On Linux/Mac ===
+
+Just because the most popular linux distribution is ubuntu, these instructions are taylored for that.  It shouldn't 
+be too hard to follow for any other distribution or mac. 
+
+Install Prerequisites: 
+Ubuntu-
+  sudo apt-get install libqt4-dev libqt4-opengl-dev flex
+
+Mac- 
+  http://qt.nokia.com/downloads
+
+Building:
+  qmake
+  make
+
+  cd chess
+  qmake
+  make
+
+  After building, the there should be a visualizer built in the root directory. 
